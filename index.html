@@ -87,7 +87,7 @@
     }
 
     /* Leaflet overrides */
-    .leaflet-container { background: #0d1018; }
+    .leaflet-container { background: #1a1a2e; }
     .leaflet-control-zoom a {
       background: var(--surface2) !important;
       color: var(--text) !important;
@@ -164,6 +164,25 @@
       letter-spacing: 0.08em;
     }
 
+    .poly-label {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: #ffffff;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      text-shadow:
+        0 0 4px #000,
+        0 0 8px #000,
+        1px 1px 2px #000,
+        -1px -1px 2px #000;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+.poly-label::before { display: none; }
+    
     #poly-id-display {
       font-family: var(--font-mono);
       font-size: 22px;
@@ -489,11 +508,11 @@
   let activeLayer = null;
 
   const defaultStyle = {
-    color: '#22d3ee',
+    color: '#ffffff',
     weight: 1.2,
-    opacity: 0.7,
-    fillColor: '#22d3ee',
-    fillOpacity: 0.12
+    opacity: 0.8,
+    fillColor: '#ffffff',
+    fillOpacity: 0.08
   };
 
   const hoverStyle = {
@@ -520,11 +539,10 @@
     attributionControl: true
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '© <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics',
+  maxZoom: 19
+}).addTo(map);
 
   // ── LOAD CSV DATA ───────────────────────────────────────────
   async function loadCSV(url) {
@@ -707,8 +725,12 @@
           const polyId = feature.properties?.poly_id ?? feature.properties?.POLY_ID;
 
           layer.bindTooltip(
-            `<div class="poly-tooltip">poly_id: ${polyId}</div>`,
-            { sticky: true, className: '', offset: [10, 0] }
+            String(polyId),
+            {
+              permanent: true,
+              direction: 'center',
+              className: 'poly-label'
+            }
           );
 
           layer.on('mouseover', function() {
